@@ -64,6 +64,27 @@ html,body,[class*="css"], [data-testid="stApp"]{font-family:Inter,system-ui,-app
 #MainMenu{visibility:hidden}footer{visibility:hidden}
 header[data-testid="stHeader"]{background:transparent}
 [data-testid="stVerticalBlock"]{gap:.65rem}
+
+/* Approved layout: quiet left navigation, clean two-column patient form */
+[data-testid="stSidebar"]{min-width:238px!important;max-width:238px!important;width:238px!important;background:#fafafa!important}
+[data-testid="stSidebarUserContent"]{padding:0.35rem 0.55rem 1.2rem!important}
+[data-testid="stSidebar"] .tp-brand{padding:7px 8px 17px;margin:0 0 8px;border-bottom:1px solid #ececef}
+[data-testid="stSidebar"] .tp-side-caption{font-size:12px;letter-spacing:.035em;margin:14px 8px 5px;color:#7b7e84}
+.tp-side-rule{height:1px;background:#ebebee;margin:15px 0 10px}
+[data-testid="stSidebar"] [data-testid="stButton"] button{border:0!important;border-radius:8px!important;background:transparent!important;min-height:35px!important;font-weight:500!important;font-size:12px!important;padding:6px 10px!important;box-shadow:none!important}
+[data-testid="stSidebar"] [data-testid="stButton"] button[kind="primary"]{background:#f0f0f1!important;color:#151515!important;font-weight:650!important}
+[data-testid="stSidebar"] [data-testid="stButton"] button:hover{background:#e9eaed!important;color:#151515!important}
+[data-testid="stSidebar"] [data-testid="stExpander"]{background:transparent!important;border:0!important}
+.tp-sidebar-bottom{font-size:11px;color:#80838a;border-top:1px solid #ececef;margin-top:28px;padding:17px 10px}
+[data-testid="stAppViewContainer"] .block-container{max-width:990px!important;padding:1.0rem 1.4rem 4rem!important}
+.tp-top{margin-bottom:13px!important;padding-bottom:7px!important;border-bottom:0!important}
+.tp-title{font-size:22px!important;font-weight:700!important;margin:0 0 5px!important}
+.tp-section-title{font-size:14px!important;margin:14px 0 9px!important}
+[data-testid="stWidgetLabel"] label{font-size:13px!important;color:#666!important}
+[data-testid="stFormSubmitButton"]{display:flex;justify-content:flex-end;margin-top:16px}
+[data-testid="stFormSubmitButton"] button{background:#101010!important;border-radius:22px!important;min-width:125px}
+[data-testid="stTextInput"] input,[data-testid="stTextArea"] textarea,[data-testid="stSelectbox"] [data-baseweb="select"]>div{border-radius:15px!important;background:#fff!important}
+[data-testid="stForm"]{border:0!important}
 </style>'''
 st.markdown(CSS,unsafe_allow_html=True)
 
@@ -96,22 +117,29 @@ SIDE_SECTIONS=['Patient Information','Molecular Diagnosis','Treatment & Outcomes
 REPEAT={'Molecular follow-up','Treatment episode'}
 
 def show_sidebar():
+    """The navigation follows the approved patient-workspace mockup."""
     with st.sidebar:
         st.markdown('<div class="tp-brand"><span class="tp-brand-mark">✚</span><div><div class="tp-brand-name">TP53 Clinical Registry</div><div class="tp-brand-sub">Research data management</div></div></div>',unsafe_allow_html=True)
         st.markdown('<div class="tp-side-caption">WORKSPACE</div>',unsafe_allow_html=True)
-        for item,emoji in [('Dashboard','▦'),('Patient Registry','♧'),('New Patient','⊕'),('Export Data','⇩')]:
-            if st.button(f'{emoji}   {item}',key='nav_'+item,type='primary' if st.session_state.page==item else 'secondary',use_container_width=True):goto(item)
+        for item,ico in [('Dashboard','▦'),('Patient Registry','♙')]:
+            if st.button(f'{ico}   {item}',key='nav_'+item,type='primary' if st.session_state.page==item else 'secondary',use_container_width=True):
+                goto(item)
+        st.markdown('<div class="tp-side-rule"></div>',unsafe_allow_html=True)
+        st.markdown('<div class="tp-side-caption">PATIENT RECORD</div>',unsafe_allow_html=True)
         pid=st.session_state.patient
         if pid and db.get_patient(pid):
-            st.divider()
-            st.markdown('<div class="tp-side-caption">PATIENT RECORD</div>',unsafe_allow_html=True)
-            st.caption('Patient / '+pid)
             icons=['♙','⌁','◇','♡','▧','▤','◷','≡']
             for sec,ico in zip(SIDE_SECTIONS,icons):
-                if st.button(f'{ico}   {sec}',key='sec_'+sec,type='primary' if st.session_state.page=='Patient Workspace' and st.session_state.section==sec else 'secondary',use_container_width=True):goto('Patient Workspace',pid,sec)
-        st.divider()
-        st.caption('◈  Prototype · '+db.BACKEND)
-        st.caption('Synthetic data only · No user login')
+                active=st.session_state.page=='Patient Workspace' and st.session_state.section==sec
+                if st.button(f'{ico}   {sec}',key='sec_'+sec,type='primary' if active else 'secondary',use_container_width=True):
+                    goto('Patient Workspace',pid,sec)
+        else:
+            st.caption('Choose a patient from the registry to display clinical sections.')
+        st.markdown('<div class="tp-side-rule"></div>',unsafe_allow_html=True)
+        with st.expander('＋  More tools',expanded=False):
+            if st.button('＋  New Patient',key='nav_create',use_container_width=True):goto('New Patient')
+            if st.button('⇩  Export Data',key='nav_export',use_container_width=True):goto('Export Data')
+        st.markdown('<div class="tp-sidebar-bottom">♢  Research prototype · Fictional data only</div>',unsafe_allow_html=True)
 
 
 def clinical_field(field,old,namespace):
@@ -295,7 +323,7 @@ def patient_card(p,index):
 
 
 def registry():
-    top('Patient Registry','Workspace / Patients','Demo data',subtitle='Search patients and view their clinical history')
+    top('Patient Registry','Workspace / Patients','Research demo',subtitle='Search patients and view their clinical history')
     n,e=db.stats();centers=len(set(p['center'] for p in db.list_patients() if p['center']))
     a,b,c=st.columns(3);a.metric('Patients',n);b.metric('Saved assessments',e);c.metric('Centers',centers)
     q=st.text_input('Search patients',placeholder='Search by patient ID, diagnosis, or hospital...',label_visibility='collapsed')
@@ -342,12 +370,20 @@ def export_data():
         st.dataframe(frame,hide_index=True,use_container_width=True)
     else:st.info('No data to export.')
 
-if 'page' not in st.session_state:st.session_state.page='Patient Registry'
-if 'patient' not in st.session_state:st.session_state.patient=None
-if 'section' not in st.session_state:st.session_state.section='Patient Information'
 try:
     db.seed_demo()
-except Exception as exc:st.warning('Sample data could not be initialized: '+str(exc))
+except Exception as exc:
+    st.warning('Sample records could not be initialized: '+str(exc))
+
+if 'page' not in st.session_state:
+    st.session_state.page='Patient Workspace'
+if 'patient' not in st.session_state:
+    examples=db.list_patients()
+    st.session_state.patient=next((p['patient_id'] for p in examples if p['patient_id']=='DEMO-001'), examples[0]['patient_id'] if examples else None)
+if 'section' not in st.session_state:
+    st.session_state.section='Patient Information'
+if st.session_state.page=='Patient Workspace' and not st.session_state.patient:
+    st.session_state.page='New Patient'
 show_sidebar()
 page=st.session_state.page
 if page=='Dashboard':dashboard()
@@ -357,4 +393,4 @@ elif page=='Patient Workspace':
     if st.session_state.patient:patient_workspace(st.session_state.patient)
     else:st.info('Choose a patient from Patient Registry.')
 elif page=='Export Data':export_data()
-st.markdown('<div class="tp-foot">TP53 Clinical Registry · Prototype for interface evaluation · Fictional records only · No user authentication</div>',unsafe_allow_html=True)
+st.markdown('<div class="tp-foot">TP53 Clinical Registry · Fictional data only · No authentication · Not for clinical use</div>',unsafe_allow_html=True)
