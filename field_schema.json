@@ -352,6 +352,141 @@
         "key": "c60",
         "label": "GNB1 (no=0, yes=1, N/A=9)",
         "column": 60
+      },
+      {
+        "key": "c61",
+        "label": "SMC1A (no=0, yes=1, N/A=9)",
+        "column": 61
+      },
+      {
+        "key": "c62",
+        "label": "SMC3 (no=0, yes=1, N/A=9)",
+        "column": 62
+      },
+      {
+        "key": "c63",
+        "label": "DDX41 (no=0, yes=1, N/A=9)",
+        "column": 63
+      },
+      {
+        "key": "c64",
+        "label": "DHX15 (no=0, yes=1, N/A=9)",
+        "column": 64
+      },
+      {
+        "key": "c65",
+        "label": "PPM1D (no=0, yes=1, N/A=9)",
+        "column": 65
+      },
+      {
+        "key": "c66",
+        "label": "PRPF8 (no=0, yes=1, N/A=9)",
+        "column": 66
+      },
+      {
+        "key": "c67",
+        "label": "ETV6 (no=0, yes=1, N/A=9)",
+        "column": 67
+      },
+      {
+        "key": "c68",
+        "label": "KIT  (no=0, yes=1, N/A=9)",
+        "column": 68
+      },
+      {
+        "key": "c69",
+        "label": "KMT2A (no=0, yes=1, N/A=9)",
+        "column": 69
+      },
+      {
+        "key": "c70",
+        "label": "ETNK1 (no=0, yes=1, N/A=9)",
+        "column": 70
+      },
+      {
+        "key": "c71",
+        "label": "THPO  (no=0, yes=1, N/A=9)",
+        "column": 71
+      },
+      {
+        "key": "c72",
+        "label": "MPL (no=0, yes=1, N/A=9)",
+        "column": 72
+      },
+      {
+        "key": "c73",
+        "label": "NF1 (no=0, yes=1, N/A=9)",
+        "column": 73
+      },
+      {
+        "key": "c74",
+        "label": "NFE2 (no=0, yes=1, N/A=9)",
+        "column": 74
+      },
+      {
+        "key": "c75",
+        "label": "CARL (no=0, yes=1, N/A=9)",
+        "column": 75
+      },
+      {
+        "key": "c76",
+        "label": "JAK2 (no=0, yes=1, N/A=9)",
+        "column": 76
+      },
+      {
+        "key": "c77",
+        "label": "CSF3R (no=0, yes=1, N/A=9)",
+        "column": 77
+      },
+      {
+        "key": "c78",
+        "label": "BRAF (no=0, yes=1, N/A=9)",
+        "column": 78
+      },
+      {
+        "key": "c79",
+        "label": "HRAS  (no=0, yes=1, N/A=9)",
+        "column": 79
+      },
+      {
+        "key": "c80",
+        "label": "GATA1 (no=0, yes=1, N/A=9)",
+        "column": 80
+      },
+      {
+        "key": "c81",
+        "label": "UBA1 (no=0, yes=1, N/A=9)",
+        "column": 81
+      },
+      {
+        "key": "c82",
+        "label": "ABL1 (no=0, yes=1, N/A=9)",
+        "column": 82
+      },
+      {
+        "key": "c83",
+        "label": "ANKRD26 (no=0, yes=1, N/A=9)",
+        "column": 83
+      },
+      {
+        "key": "c84",
+        "label": "NGS date",
+        "column": 84
+      },
+      {
+        "key": "c85",
+        "label": "NUMBER OF MUTATIONS",
+        "column": 85
+      },
+      {
+        "key": "c86",
+        "label": "≥3 MUTATIONS",
+        "column": 86
+      },
+      {
+        "key": "c87",
+        "label": "NGS mutations B or C (ClinVar)",
+        "column": 87
       }
     ],
     "Treatment & outcomes": [
@@ -908,6 +1043,41 @@
         "key": "c60",
         "label": "BRAF (no=0, yes=1, N/A=9)",
         "column": 60
+      },
+      {
+        "key": "c61",
+        "label": "HRAS  (no=0, yes=1, N/A=9)",
+        "column": 61
+      },
+      {
+        "key": "c62",
+        "label": "GATA1 (no=0, yes=1, N/A=9)",
+        "column": 62
+      },
+      {
+        "key": "c63",
+        "label": "UBA1 (no=0, yes=1, N/A=9)",
+        "column": 63
+      },
+      {
+        "key": "c64",
+        "label": "ABL1 (no=0, yes=1, N/A=9)",
+        "column": 64
+      },
+      {
+        "key": "c65",
+        "label": "ANKRD26 (no=0, yes=1, N/A=9)",
+        "column": 65
+      },
+      {
+        "key": "c66",
+        "label": "NGS date",
+        "column": 66
+      },
+      {
+        "key": "c67",
+        "label": "NGS mutations B or C (ClinVar)",
+        "column": 67
       }
     ]
   }

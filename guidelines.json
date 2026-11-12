@@ -1,0 +1,22 @@
+{
+  "Karyotype": [
+    "Complex karyotype:",
+    "At least three (≥3) unrelated chromosomal abnormalities in one clone.",
+    "Must not include other class-defining alterations (e.g., core-binding factor translocations, t(8;21), inv(16), APL, etc.).",
+    "Excludes simple hyperdiploid karyotypes with ≥3 trisomies but no structural changes.",
+    "Monosomal karyotype:",
+    "Two or more monosomies of autosomes (e.g., −5, −7, −17, etc.), excluding loss of X or Y alone",
+    "One autosomal monosomy plus at least one structural chromosomal abnormality, again not including core-binding factor AML (e.g., t(8;21), inv(16))."
+  ],
+  "TP53": [
+    "Study limitation aknowledgment: Due to lack of routine access to SNP arrays or FISH for detection of copy-neutral LOH at 17p13, assessment of TP53 allelic state was limited to NGS-based mutation profiling and conventional karyotyping. Thus, cases with monoallelic mutations and undetected cnLOH may have been misclassified.",
+    "Biallelic:",
+    "≥2 TP53 mutations",
+    "1 mutation + deletion 17p on karyotype"
+  ],
+  "NGS": [
+    "For NGS data:",
+    "1. report higly pathogenic mutations (A, according to ClinVar) in the boxes",
+    "2. write likely pathogenic or unknown mutations (B and C according to ClinVar) in the notes"
+  ]
+}
