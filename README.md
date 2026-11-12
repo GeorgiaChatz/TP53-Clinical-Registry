@@ -1,49 +1,52 @@
-# TP53 Clinical Registry — complete Streamlit demonstration
+# TP53 Clinical Registry — visual Streamlit prototype
 
-Based on the field headings in your uploaded TP53 spreadsheet. Original clinical records were not copied into this package. Fictional sample patients only.
+This version follows the agreed mockup: sidebar WORKSPACE and PATIENT RECORD sections, rounded forms, patient registry cards, draft saves and searchable clinical histories.
+
+**DEMO ONLY.** It has no authentication, uses synthetic sample patient records, and must not be used with identifiable or real medical information.
 
 ## Deploy to Streamlit Community Cloud
 
-1. Upload `app.py`, `db.py`, `db_postgres.py`, `db_sqlite.py`, `field_schema.json`, `requirements.txt`, `.gitignore`, and optionally README.md to the **root** of your GitHub repository. Do not upload a ZIP itself. Replace the old files; don't leave nested folders or old versions.
-2. Deploy main file `app.py` on Streamlit Community Cloud. Choose Python 3.11 or 3.12 if offered.
-3. In Streamlit Cloud, open your app **Settings → Secrets** and add:
+1. Extract this ZIP. Upload **all files from inside the folder** to the root of your private GitHub repository (not the ZIP itself). Replace the previous `app.py` and supporting files.
+2. Ensure the repository's `requirements.txt` contains the dependencies included here. Cloud deploy entry point: `app.py`, branch: `main`.
+3. Streamlit Cloud > App settings > Secrets: configure the Supabase **Session pooler** connection URI (no credentials go in GitHub):
 
    ```toml
-   DATABASE_URL = "postgresql://postgres.PROJECT_REFERENCE:URL_ENCODED_PASSWORD@YOUR_SESSION_POOLER_HOST:5432/postgres?sslmode=require"
+   DATABASE_URL = "postgresql://postgres.PROJECT_REF:ENCODED_PASSWORD@YOUR_POOLER_HOST:5432/postgres?sslmode=require"
    ```
 
-   Obtain **actual** user, host, port from Supabase's **Connect → Connection string → Session pooler**. Do not use the localhost address or Supabase API keys. If Supabase URI already has query parameters, append `&sslmode=require` rather than a second `?`. Never share this credential or commit it to GitHub.
-4. Save Secrets and **Reboot app**. Use app Logs to see any install or connection errors.
-5. Go to Supabase **SQL Editor** and run `SELECT patient_id, diagnosis, center FROM public.patients ORDER BY patient_id;` after the app starts. Add a fictional patient in Streamlit, and confirm it appears in Supabase.
+   Use the exact Supabase URI/port provided by your dashboard. URL-encode reserved characters in your password. Do not share connection credentials.
+4. Save settings and reboot/redeploy the app. If the Supabase password was previously shared, reset it and update this secret.
+5. Open **Patient Registry**, then a fictional patient. Test **Patient Information → Save draft**, then close and reopen the record. Use **Full Clinical History** to see saved events.
 
-### Common deployment errors
-- `No module named 'dotenv'`: deploy the included `requirements.txt` at the repository root.
-- `No module named 'psycopg'`: deploy the included `requirements.txt` with `psycopg[binary]` and reboot.
-- `No module named 'db_postgres'`: upload `db_postgres.py` to the same directory as `app.py`.
-- Database connection timeout: choose **Session pooler**, not Direct IPv6-only. Check connection URI and database password.
-- `invalid password`: reset your Supabase database password, then update Streamlit Secrets. URL-encode special characters.
-- If `DATABASE_URL` isn't set, the app falls back to SQLite for demonstration; data on Streamlit Cloud is **not guaranteed to persist**.
+## Local run
 
-## Run locally
+Python 3.11 or 3.12:
 
-Install Python 3.11/3.12 and run `start_windows.bat`, or use:
-
-```sh
-python -m pip install -r requirements.txt
-python -m streamlit run app.py
+```bash
+python -m venv .venv
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
-Optionally copy `.env.example` to `.env` and put your local PostgreSQL connection string in it. Without `DATABASE_URL`, local SQLite will be used.
+With no `DATABASE_URL`, the demo uses a local SQLite database at `data/registry_demo.sqlite3`. Data on Streamlit Cloud's local filesystem is not durable; **use Supabase/PostgreSQL for cloud saves**.
 
-## Features
+To connect to local PostgreSQL instead, create a `.env` file from `.env.example` with `DATABASE_URL` and a dedicated, restricted PostgreSQL account. Never commit the `.env` file.
 
-- Sidebar navigation: dashboard, patient registry, registration, export; patient-specific clinical sections
-- All original workbook clinical section headings represented in `field_schema.json`
-- Repeated treatment episodes and molecular follow-up measurements
-- Searchable patients, history timeline, molecular VAF trend, change log
-- SQLite local demo or PostgreSQL/Supabase persistent storage via `DATABASE_URL`
-- Tables created automatically: `patients`, `section_entries`, `audit_events`
+## Database tables
 
-## Security
+The app automatically creates `patients`, `section_entries`, and `audit_events` on PostgreSQL startup. `section_entries` stores each patient's section data and repeating molecular assessments. Save and read both use the same database connection.
 
-**Fictional data only.** The prototype has no authentication or per-user permissions, no approved clinical audit trail, no institutional data governance, and no verified clinical scoring or validation. Do not store real patient information or use it for decisions about care. Before real deployment, add individual authentication, authorization, auditability, encrypted connections, backup/restore process, and institutional/GDPR review. Change any DB password previously shared in a chat or screenshot.
+Supabase SQL check:
+
+```sql
+SELECT patient_id, center, diagnosis FROM public.patients ORDER BY patient_id;
+SELECT patient_id, section, episode FROM public.section_entries ORDER BY patient_id, section, episode;
+```
+
+## Limitations / next steps
+
+The visual design is an approximation of the conversation mockup, rendered using Streamlit CSS rather than a standalone React front end. The database contains raw clinical field codes (`c2`, `c3`, etc.) mapped to their original labels in `field_schema.json`. Forms render all of the original field labels, but the initial Patient Information screen shows the most important fields first.
+
+No per-user roles, RLS policies, medical validation, verified backup/recovery, audit user identity or compliant medical data protection have yet been implemented. Do not invite users to enter actual patient data.
