@@ -1,0 +1,914 @@
+{
+  "sections": {
+    "Patient details": [
+      {
+        "key": "c2",
+        "label": "Center/Hospital",
+        "column": 2
+      },
+      {
+        "key": "c3",
+        "label": "Sex                    (F=1, M=2)",
+        "column": 3
+      },
+      {
+        "key": "c4",
+        "label": "Date of Birth",
+        "column": 4
+      },
+      {
+        "key": "c5",
+        "label": "Height (cm)",
+        "column": 5
+      },
+      {
+        "key": "c6",
+        "label": "Weight (kg)",
+        "column": 6
+      },
+      {
+        "key": "c7",
+        "label": "BSA (m^2)",
+        "column": 7
+      },
+      {
+        "key": "c8",
+        "label": "Date of diagnosis",
+        "column": 8
+      },
+      {
+        "key": "c9",
+        "label": "Age at diagnosis      (DOB-date diagnosis)",
+        "column": 9
+      },
+      {
+        "key": "c10",
+        "label": "comorbidities",
+        "column": 10
+      },
+      {
+        "key": "c11",
+        "label": "ECOG",
+        "column": 11
+      },
+      {
+        "key": "c12",
+        "label": "Karnofsky",
+        "column": 12
+      }
+    ],
+    "Diagnosis & TP53": [
+      {
+        "key": "c2",
+        "label": "Diagnosis                  (MDS=1, AML=2)",
+        "column": 2
+      },
+      {
+        "key": "c3",
+        "label": "Date of diagnosis",
+        "column": 3
+      },
+      {
+        "key": "c4",
+        "label": "blast percentage at diagnosis (%)",
+        "column": 4
+      },
+      {
+        "key": "c5",
+        "label": "Immunophenotype of blasts  (i.e. CD34+, CD117+, CD38-)",
+        "column": 5
+      },
+      {
+        "key": "c6",
+        "label": "CD117",
+        "column": 6
+      },
+      {
+        "key": "c7",
+        "label": "CD34",
+        "column": 7
+      },
+      {
+        "key": "c8",
+        "label": "CD33",
+        "column": 8
+      },
+      {
+        "key": "c9",
+        "label": "CD36",
+        "column": 9
+      },
+      {
+        "key": "c10",
+        "label": "CD13",
+        "column": 10
+      },
+      {
+        "key": "c11",
+        "label": "CD56",
+        "column": 11
+      },
+      {
+        "key": "c12",
+        "label": "CD123",
+        "column": 12
+      },
+      {
+        "key": "c13",
+        "label": "HLA-DR",
+        "column": 13
+      },
+      {
+        "key": "c14",
+        "label": "Karyotype at diagnosis",
+        "column": 14
+      },
+      {
+        "key": "c15",
+        "label": "Complex karyotype (yes=1, no=0)",
+        "column": 15
+      },
+      {
+        "key": "c16",
+        "label": "Monosomal Karyotype (yes=1, no=0)",
+        "column": 16
+      },
+      {
+        "key": "c17",
+        "label": "NGS data at diagnosis (available=1, N/A=0)",
+        "column": 17
+      },
+      {
+        "key": "c18",
+        "label": "Tp53 specific mutation/alteration",
+        "column": 18
+      },
+      {
+        "key": "c19",
+        "label": "Protein annotation (NM_000546.6)",
+        "column": 19
+      },
+      {
+        "key": "c20",
+        "label": "Mutation class",
+        "column": 20
+      },
+      {
+        "key": "c21",
+        "label": "EA score",
+        "column": 21
+      },
+      {
+        "key": "c22",
+        "label": "Risk (low=0, high=1)",
+        "column": 22
+      },
+      {
+        "key": "c23",
+        "label": "EAp53 (low=0, high=1)",
+        "column": 23
+      },
+      {
+        "key": "c24",
+        "label": "Short protein notation",
+        "column": 24
+      },
+      {
+        "key": "c25",
+        "label": "VAF (%)",
+        "column": 25
+      },
+      {
+        "key": "c26",
+        "label": "del17p (no=0, yes=1, N/A=9)",
+        "column": 26
+      },
+      {
+        "key": "c27",
+        "label": "Allelic state (monoallelic=1, biallelic=2)",
+        "column": 27
+      },
+      {
+        "key": "c28",
+        "label": "Biallelic specific (0=mut, 1=mut+del)",
+        "column": 28
+      },
+      {
+        "key": "c29",
+        "label": "ICC allelic state",
+        "column": 29
+      },
+      {
+        "key": "c30",
+        "label": "40%VAF allelic state",
+        "column": 30
+      },
+      {
+        "key": "c31",
+        "label": "Monosomy 7 (no=0, yes=1, N/A=9)",
+        "column": 31
+      },
+      {
+        "key": "c32",
+        "label": "Monosomy 5 (no=0, yes=1, N/A=9)",
+        "column": 32
+      },
+      {
+        "key": "c33",
+        "label": "Trisomy 8 (no=0, yes=1, N/A=9)",
+        "column": 33
+      },
+      {
+        "key": "c34",
+        "label": "FLT3 (no=0, yes=1, N/A=9)",
+        "column": 34
+      },
+      {
+        "key": "c35",
+        "label": "NPM1 (no=0, yes=1, N/A=9)",
+        "column": 35
+      },
+      {
+        "key": "c36",
+        "label": "DNMT3A (no=0, yes=1, N/A=9)",
+        "column": 36
+      },
+      {
+        "key": "c37",
+        "label": "TET2 (no=0, yes=1, N/A=9)",
+        "column": 37
+      },
+      {
+        "key": "c38",
+        "label": "ASXL1 (no=0, yes=1, N/A=9)",
+        "column": 38
+      },
+      {
+        "key": "c39",
+        "label": "RUNX1  (no=0, yes=1, N/A=9)",
+        "column": 39
+      },
+      {
+        "key": "c40",
+        "label": "SRSF2 (no=0, yes=1, N/A=9)",
+        "column": 40
+      },
+      {
+        "key": "c41",
+        "label": "NRAS (no=0, yes=1, N/A=9)",
+        "column": 41
+      },
+      {
+        "key": "c42",
+        "label": "IDH1 (no=0, yes=1, N/A=9)",
+        "column": 42
+      },
+      {
+        "key": "c43",
+        "label": "IDH2 (no=0, yes=1, N/A=9)",
+        "column": 43
+      },
+      {
+        "key": "c44",
+        "label": "CEBPA (no=0, yes=1, N/A=9)",
+        "column": 44
+      },
+      {
+        "key": "c45",
+        "label": "U2AF1 (no=0, yes=1, N/A=9)",
+        "column": 45
+      },
+      {
+        "key": "c46",
+        "label": "SF3B1 (no=0, yes=1, N/A=9)",
+        "column": 46
+      },
+      {
+        "key": "c47",
+        "label": "ZRSR2 (no=0, yes=1, N/A=9)",
+        "column": 47
+      },
+      {
+        "key": "c48",
+        "label": "EZH2 (no=0, yes=1, N/A=9)",
+        "column": 48
+      },
+      {
+        "key": "c49",
+        "label": "KRAS (no=0, yes=1, N/A=9)",
+        "column": 49
+      },
+      {
+        "key": "c50",
+        "label": "WT1 (no=0, yes=1, N/A=9)",
+        "column": 50
+      },
+      {
+        "key": "c51",
+        "label": "BCOR (no=0, yes=1, N/A=9)",
+        "column": 51
+      },
+      {
+        "key": "c52",
+        "label": "STAG2  (no=0, yes=1, N/A=9)",
+        "column": 52
+      },
+      {
+        "key": "c53",
+        "label": "PTPN11 (no=0, yes=1, N/A=9)",
+        "column": 53
+      },
+      {
+        "key": "c54",
+        "label": "PHF6 (no=0, yes=1, N/A=9)",
+        "column": 54
+      },
+      {
+        "key": "c55",
+        "label": "GATA2 (no=0, yes=1, N/A=9)",
+        "column": 55
+      },
+      {
+        "key": "c56",
+        "label": "SETBP1 (no=0, yes=1, N/A=9)",
+        "column": 56
+      },
+      {
+        "key": "c57",
+        "label": "RAD21 (no=0, yes=1, N/A=9)",
+        "column": 57
+      },
+      {
+        "key": "c58",
+        "label": "CBL (no=0, yes=1, N/A=9)",
+        "column": 58
+      },
+      {
+        "key": "c59",
+        "label": "BCORL1 (no=0, yes=1, N/A=9)",
+        "column": 59
+      },
+      {
+        "key": "c60",
+        "label": "GNB1 (no=0, yes=1, N/A=9)",
+        "column": 60
+      }
+    ],
+    "Treatment & outcomes": [
+      {
+        "key": "c2",
+        "label": "Date of diagnosis",
+        "column": 2
+      },
+      {
+        "key": "c3",
+        "label": "Initial approach (HMA based =1, chemotherapy-alloSCT based=2, other=3)",
+        "column": 3
+      },
+      {
+        "key": "c4",
+        "label": "blasts treatment initiation (%)",
+        "column": 4
+      },
+      {
+        "key": "c5",
+        "label": "1st line treatment (specific drugs, dosing)",
+        "column": 5
+      },
+      {
+        "key": "c6",
+        "label": "HMA alone  =0  vs HMA/VEN=1  vs chemo= 2,      vs other =3",
+        "column": 6
+      },
+      {
+        "key": "c7",
+        "label": "Date of 1st line initiation",
+        "column": 7
+      },
+      {
+        "key": "c8",
+        "label": "Response 1st line",
+        "column": 8
+      },
+      {
+        "key": "c9",
+        "label": "Date of response",
+        "column": 9
+      },
+      {
+        "key": "c10",
+        "label": "Relapse        (yes=1,no=0)",
+        "column": 10
+      },
+      {
+        "key": "c11",
+        "label": "Date of relapse",
+        "column": 11
+      },
+      {
+        "key": "c12",
+        "label": "Time to relapse",
+        "column": 12
+      },
+      {
+        "key": "c13",
+        "label": "2nd line treatment",
+        "column": 13
+      },
+      {
+        "key": "c14",
+        "label": "blasts 2nd treatment initiation (%)",
+        "column": 14
+      },
+      {
+        "key": "c15",
+        "label": "Date of 2nd line initiation",
+        "column": 15
+      },
+      {
+        "key": "c16",
+        "label": "Response 2nd line",
+        "column": 16
+      },
+      {
+        "key": "c17",
+        "label": "Date of response",
+        "column": 17
+      },
+      {
+        "key": "c18",
+        "label": "Relapse        (yes=1,no=0)",
+        "column": 18
+      },
+      {
+        "key": "c19",
+        "label": "Date of relapse",
+        "column": 19
+      },
+      {
+        "key": "c20",
+        "label": "3rd line treatment",
+        "column": 20
+      },
+      {
+        "key": "c21",
+        "label": "blasts 3rd treatment initiation (%)",
+        "column": 21
+      },
+      {
+        "key": "c22",
+        "label": "Date of 3rd line initiation",
+        "column": 22
+      },
+      {
+        "key": "c23",
+        "label": "Response 3rd line",
+        "column": 23
+      },
+      {
+        "key": "c24",
+        "label": "Date of response",
+        "column": 24
+      },
+      {
+        "key": "c25",
+        "label": "Relapse        (yes=1,no=0)",
+        "column": 25
+      },
+      {
+        "key": "c26",
+        "label": "Date of relapse",
+        "column": 26
+      },
+      {
+        "key": "c27",
+        "label": "Progression to AML    (yes=1, no=0)",
+        "column": 27
+      },
+      {
+        "key": "c28",
+        "label": "Date of progression",
+        "column": 28
+      },
+      {
+        "key": "c29",
+        "label": "Time to leukemia",
+        "column": 29
+      },
+      {
+        "key": "c30",
+        "label": "DEATH (0,1)",
+        "column": 30
+      },
+      {
+        "key": "c31",
+        "label": "Cause of death",
+        "column": 31
+      },
+      {
+        "key": "c32",
+        "label": "Date of last follow up or death",
+        "column": 32
+      },
+      {
+        "key": "c33",
+        "label": "Event Free Survival (relapse/progression or death- date of 1st treatment) σε μήνες (DAYS/30,5)",
+        "column": 33
+      },
+      {
+        "key": "c34",
+        "label": "Overall Survival (last follow up-date of diagnosis) σε μήνες (DAYS/30,5)",
+        "column": 34
+      },
+      {
+        "key": "c35",
+        "label": "Additional information (please comment missing data, i.e. transplant center)",
+        "column": 35
+      }
+    ],
+    "Allogeneic transplant": [
+      {
+        "key": "c2",
+        "label": "Date of diagnosis",
+        "column": 2
+      },
+      {
+        "key": "c3",
+        "label": "AlloSCT (yes=1, no=0)",
+        "column": 3
+      },
+      {
+        "key": "c4",
+        "label": "Date of AlloSCT",
+        "column": 4
+      },
+      {
+        "key": "c5",
+        "label": "Time to alloSCT                               (date of alloSCT-date of diagnosis) σε μήνες (DAYS/30,5)",
+        "column": 5
+      },
+      {
+        "key": "c6",
+        "label": "MRD status prior alloSCT (negative=0, positive=1, N/A=9)",
+        "column": 6
+      },
+      {
+        "key": "c7",
+        "label": "AlloSCT conditioning",
+        "column": 7
+      },
+      {
+        "key": "c8",
+        "label": "Donor matching (haplo=0, 10/10=1, 9/10=2, 8/10=3)",
+        "column": 8
+      },
+      {
+        "key": "c9",
+        "label": "Date of discontinuation of immunosuppressive treatment",
+        "column": 9
+      },
+      {
+        "key": "c10",
+        "label": "Time to discontinuation of immunosuppressive treatment",
+        "column": 10
+      },
+      {
+        "key": "c11",
+        "label": "GvHD (yes=1, no=0)",
+        "column": 11
+      },
+      {
+        "key": "c12",
+        "label": "GvHD type (acute=1, chronic=0)",
+        "column": 12
+      },
+      {
+        "key": "c13",
+        "label": "GvHD localization (Skin=1, hepatic=2, upper gastro=2, lower gastro=4, renal=5)",
+        "column": 13
+      },
+      {
+        "key": "c14",
+        "label": "Maintenance treatment           (yes=1, no=0)",
+        "column": 14
+      },
+      {
+        "key": "c15",
+        "label": "Maintenance treatment         (specific drugs, dosage)",
+        "column": 15
+      },
+      {
+        "key": "c16",
+        "label": "Relapse after alloSCT                (yes=1, no=0)",
+        "column": 16
+      },
+      {
+        "key": "c17",
+        "label": "Date of relapse after alloSCT",
+        "column": 17
+      },
+      {
+        "key": "c18",
+        "label": "Time to relapse after alloSCT    (date of relapse-date of alloSCT) σε μήνες (DAYS/30,5)",
+        "column": 18
+      }
+    ],
+    "Molecular follow-up": [
+      {
+        "key": "c2",
+        "label": "Clinical Time Point       (i.e. at first relapse)",
+        "column": 2
+      },
+      {
+        "key": "c3",
+        "label": "Karyotype at time point",
+        "column": 3
+      },
+      {
+        "key": "c4",
+        "label": "Date of time point",
+        "column": 4
+      },
+      {
+        "key": "c5",
+        "label": "Complex karyotype (yes=1, no=0)",
+        "column": 5
+      },
+      {
+        "key": "c6",
+        "label": "Monosomal Karyotype (yes=1, no=0)",
+        "column": 6
+      },
+      {
+        "key": "c7",
+        "label": "NGS data             (available=1, N/A=0)",
+        "column": 7
+      },
+      {
+        "key": "c8",
+        "label": "date of NGS",
+        "column": 8
+      },
+      {
+        "key": "c9",
+        "label": "Tp53 specific mutation/alteration",
+        "column": 9
+      },
+      {
+        "key": "c10",
+        "label": "VAF (%)",
+        "column": 10
+      },
+      {
+        "key": "c11",
+        "label": "del17p (no=0, yes=1, N/A=9)",
+        "column": 11
+      },
+      {
+        "key": "c12",
+        "label": "Allelic state (monoallelic=1, biallelic=2)",
+        "column": 12
+      },
+      {
+        "key": "c13",
+        "label": "Monosomy 7 (no=0, yes=1, N/A=9)",
+        "column": 13
+      },
+      {
+        "key": "c14",
+        "label": "Monosomy 5 (no=0, yes=1, N/A=9)",
+        "column": 14
+      },
+      {
+        "key": "c15",
+        "label": "Trisomy 8 (no=0, yes=1, N/A=9)",
+        "column": 15
+      },
+      {
+        "key": "c16",
+        "label": "FLT3 (no=0, yes=1, N/A=9)",
+        "column": 16
+      },
+      {
+        "key": "c17",
+        "label": "NPM1 (no=0, yes=1, N/A=9)",
+        "column": 17
+      },
+      {
+        "key": "c18",
+        "label": "DNMT3A (no=0, yes=1, N/A=9)",
+        "column": 18
+      },
+      {
+        "key": "c19",
+        "label": "TET2 (no=0, yes=1, N/A=9)",
+        "column": 19
+      },
+      {
+        "key": "c20",
+        "label": "ASXL1 (no=0, yes=1, N/A=9)",
+        "column": 20
+      },
+      {
+        "key": "c21",
+        "label": "RUNX1  (no=0, yes=1, N/A=9)",
+        "column": 21
+      },
+      {
+        "key": "c22",
+        "label": "SRSF2 (no=0, yes=1, N/A=9)",
+        "column": 22
+      },
+      {
+        "key": "c23",
+        "label": "NRAS (no=0, yes=1, N/A=9)",
+        "column": 23
+      },
+      {
+        "key": "c24",
+        "label": "IDH1 (no=0, yes=1, N/A=9)",
+        "column": 24
+      },
+      {
+        "key": "c25",
+        "label": "IDH2 (no=0, yes=1, N/A=9)",
+        "column": 25
+      },
+      {
+        "key": "c26",
+        "label": "CEBPA (no=0, yes=1, N/A=9)",
+        "column": 26
+      },
+      {
+        "key": "c27",
+        "label": "U2AF1 (no=0, yes=1, N/A=9)",
+        "column": 27
+      },
+      {
+        "key": "c28",
+        "label": "SF3B1 (no=0, yes=1, N/A=9)",
+        "column": 28
+      },
+      {
+        "key": "c29",
+        "label": "ZRSR2 (no=0, yes=1, N/A=9)",
+        "column": 29
+      },
+      {
+        "key": "c30",
+        "label": "EZH2 (no=0, yes=1, N/A=9)",
+        "column": 30
+      },
+      {
+        "key": "c31",
+        "label": "KRAS (no=0, yes=1, N/A=9)",
+        "column": 31
+      },
+      {
+        "key": "c32",
+        "label": "WT1 (no=0, yes=1, N/A=9)",
+        "column": 32
+      },
+      {
+        "key": "c33",
+        "label": "BCOR (no=0, yes=1, N/A=9)",
+        "column": 33
+      },
+      {
+        "key": "c34",
+        "label": "STAG2  (no=0, yes=1, N/A=9)",
+        "column": 34
+      },
+      {
+        "key": "c35",
+        "label": "PTPN11 (no=0, yes=1, N/A=9)",
+        "column": 35
+      },
+      {
+        "key": "c36",
+        "label": "PHF6 (no=0, yes=1, N/A=9)",
+        "column": 36
+      },
+      {
+        "key": "c37",
+        "label": "GATA2 (no=0, yes=1, N/A=9)",
+        "column": 37
+      },
+      {
+        "key": "c38",
+        "label": "SETBP1 (no=0, yes=1, N/A=9)",
+        "column": 38
+      },
+      {
+        "key": "c39",
+        "label": "RAD21 (no=0, yes=1, N/A=9)",
+        "column": 39
+      },
+      {
+        "key": "c40",
+        "label": "CBL (no=0, yes=1, N/A=9)",
+        "column": 40
+      },
+      {
+        "key": "c41",
+        "label": "BCORL1 (no=0, yes=1, N/A=9)",
+        "column": 41
+      },
+      {
+        "key": "c42",
+        "label": "GNB1 (no=0, yes=1, N/A=9)",
+        "column": 42
+      },
+      {
+        "key": "c43",
+        "label": "SMC1A (no=0, yes=1, N/A=9)",
+        "column": 43
+      },
+      {
+        "key": "c44",
+        "label": "SMC3 (no=0, yes=1, N/A=9)",
+        "column": 44
+      },
+      {
+        "key": "c45",
+        "label": "DDX41 (no=0, yes=1, N/A=9)",
+        "column": 45
+      },
+      {
+        "key": "c46",
+        "label": "DHX15 (no=0, yes=1, N/A=9)",
+        "column": 46
+      },
+      {
+        "key": "c47",
+        "label": "PPM1D (no=0, yes=1, N/A=9)",
+        "column": 47
+      },
+      {
+        "key": "c48",
+        "label": "PRPF8 (no=0, yes=1, N/A=9)",
+        "column": 48
+      },
+      {
+        "key": "c49",
+        "label": "ETV6 (no=0, yes=1, N/A=9)",
+        "column": 49
+      },
+      {
+        "key": "c50",
+        "label": "KIT  (no=0, yes=1, N/A=9)",
+        "column": 50
+      },
+      {
+        "key": "c51",
+        "label": "KMT2A (no=0, yes=1, N/A=9)",
+        "column": 51
+      },
+      {
+        "key": "c52",
+        "label": "ETNK1 (no=0, yes=1, N/A=9)",
+        "column": 52
+      },
+      {
+        "key": "c53",
+        "label": "THPO  (no=0, yes=1, N/A=9)",
+        "column": 53
+      },
+      {
+        "key": "c54",
+        "label": "MPL (no=0, yes=1, N/A=9)",
+        "column": 54
+      },
+      {
+        "key": "c55",
+        "label": "NF1 (no=0, yes=1, N/A=9)",
+        "column": 55
+      },
+      {
+        "key": "c56",
+        "label": "NFE2 (no=0, yes=1, N/A=9)",
+        "column": 56
+      },
+      {
+        "key": "c57",
+        "label": "CARL (no=0, yes=1, N/A=9)",
+        "column": 57
+      },
+      {
+        "key": "c58",
+        "label": "JAK2 (no=0, yes=1, N/A=9)",
+        "column": 58
+      },
+      {
+        "key": "c59",
+        "label": "CSF3R (no=0, yes=1, N/A=9)",
+        "column": 59
+      },
+      {
+        "key": "c60",
+        "label": "BRAF (no=0, yes=1, N/A=9)",
+        "column": 60
+      }
+    ]
+  }
+}
