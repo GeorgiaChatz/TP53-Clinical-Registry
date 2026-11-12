@@ -1,4 +1,5 @@
-"""TP53 Registry — proof-of-concept; fictional patients only."""
+"""TP53 Clinical Registry — synthetic-data demonstration. Not for patient care."""
+import html
 import json
 import re
 from datetime import datetime
@@ -6,227 +7,257 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-import db
 
-ROOT=Path(__file__).parent
-SCHEMA=json.loads((ROOT/'field_schema.json').read_text(encoding='utf-8'))['sections']
-SECTIONS=['Patient details','Diagnosis & TP53','Treatment & outcomes','Treatment episode','Allogeneic transplant','Molecular follow-up']
-REPEATABLE={'Treatment episode','Molecular follow-up'}
-PAGE_ICONS={'Patient details':'👤','Diagnosis & TP53':'🧬','Treatment & outcomes':'💊','Treatment episode':'💉','Allogeneic transplant':'🏥','Molecular follow-up':'🔬'}
+st.set_page_config(page_title='TP53 Clinical Registry', page_icon='🧬', layout='wide', initial_sidebar_state='expanded')
 
-st.set_page_config(page_title='TP53 Research Registry | Demo',page_icon='🧬',layout='wide',initial_sidebar_state='expanded')
-st.markdown('''<style>
-.stApp {background: #f7f9fc; color:#14243d;}
-section[data-testid="stSidebar"] {background:#101e36;}
-section[data-testid="stSidebar"] * {color:#e8edf5;}
-.block-container {padding-top:2rem;max-width:1350px;}
-.hero {background:linear-gradient(115deg,#152945,#234d74);padding:24px 28px;border-radius:16px;color:#fff;margin-bottom:16px}
-.hero h1{font-size:28px;margin:0;color:white}.hero p{margin:6px 0 0;color:#cddfeb}
-.pill {display:inline-block;padding:5px 11px;background:#e8f0f8;border-radius:100px;color:#235075;font-size:12px}
-small{color:#657792}
-[data-testid="stMetric"]{background:white;padding:15px;border:1px solid #e4ebf3;border-radius:12px}
-</style>''',unsafe_allow_html=True)
-db.init()
-if 'initialized' not in st.session_state:
-    db.seed_demo()
-    st.session_state.initialized=True
-if 'patient_id' not in st.session_state:st.session_state.patient_id=None
-if 'nav' not in st.session_state:st.session_state.nav='Dashboard'
+STYLE = '''<style>
+:root {--navy:#152842;--blue:#24618c;--soft:#eef4f9}
+.block-container {max-width:1340px;padding-top:1.6rem;padding-bottom:3rem}
+.stApp {background:#f8fafc}
+section[data-testid="stSidebar"] {background:#f0f4f8;border-right:1px solid #dce6ef}
+section[data-testid="stSidebar"] * {color:#1c3650}
+section[data-testid="stSidebar"] [data-testid="stAlert"] * {color:#633e00}
+h1,h2,h3 {color:#152842;letter-spacing:-.02em}
+div[data-testid="stMetric"] {background:#fff;border:1px solid #e1e8ef;border-radius:13px;padding:14px 17px}
+.stButton>button[kind="primary"],div[data-testid="stFormSubmitButton"] button[kind="primary"] {background:#1e567e;border-color:#1e567e}
+.tp-header {background:#fff;border:1px solid #e1e8ef;padding:20px 24px;border-radius:15px;margin:5px 0 21px}
+.tp-header h2 {font-size:27px;margin:0;color:#152842}.tp-header p{color:#687e91;margin:7px 0 0}
+.tp-tag{color:#28714d;background:#e4f4e9;border-radius:18px;padding:4px 10px;font-size:12px;font-weight:600}
+.tp-entry{background:white;border:1px solid #e0e8f0;border-radius:11px;padding:15px 18px;margin:11px 0}
+.tp-small{font-size:13px;color:#60788d}
+.tp-logo{font-size:24px;font-weight:800;color:#173956;margin-top:2px}
+</style>'''
+st.markdown(STYLE, unsafe_allow_html=True)
 
-st.sidebar.markdown('## 🧬 TP53 Registry')
-st.sidebar.caption('Clinical research · Prototype')
-st.sidebar.warning('DEMO ONLY · Use fictional / synthetic records. Not approved for real patient data.')
-if st.session_state.get('pending_nav'):
-    st.session_state.nav=st.session_state.pop('pending_nav')
-nav=st.sidebar.radio('Workspace',['Dashboard','Patient registry','New patient','Research export'],key='nav')
-st.sidebar.divider()
-st.sidebar.caption('LOCAL TESTING')
-st.sidebar.markdown('📁 SQLite database on this computer')
-st.sidebar.markdown('🔐 No login in this prototype')
+try:
+    import db
+    db.init()
+except Exception as exc:
+    st.error('Unable to start the database. Check your Streamlit requirements and DATABASE_URL in App settings → Secrets.')
+    st.code(f'{type(exc).__name__}: {exc}',language='text')
+    st.info('For Supabase use the Session pooler URI and ensure requirements.txt includes psycopg[binary]. Never share database passwords in screenshots or messages.')
+    st.stop()
 
-def go_patient(pid):
-    st.session_state.patient_id=pid
-    st.session_state.pending_nav='Patient registry'
+SECTIONS=json.loads((Path(__file__).parent/'field_schema.json').read_text(encoding='utf8'))['sections']
+PAGES={
+    'Patient Information':'Patient details',
+    'Molecular Diagnosis':'Diagnosis & TP53',
+    'Treatment & Outcomes':'Treatment & outcomes',
+    'Treatment Episodes':'Treatment episode',
+    'Allogeneic SCT':'Allogeneic transplant',
+    'Molecular Follow-up':'Molecular follow-up',
+}
+REPEAT={'Treatment episode','Molecular follow-up'}
+ICONS={'Patient Information':'👤','Molecular Diagnosis':'🧬','Treatment & Outcomes':'💊','Treatment Episodes':'📋','Allogeneic SCT':'❤️','Molecular Follow-up':'🔬'}
+EPISODE_FIELDS=[
+    {'key':'title','label':'Treatment / regimen'},
+    {'key':'date','label':'Date of initiation'},
+    {'key':'response','label':'Response'},
+    {'key':'response_date','label':'Date of response'},
+    {'key':'relapse_date','label':'Date of relapse'},
+    {'key':'notes','label':'Additional information'},
+]
+
+def safe(x):return html.escape(str(x or ''))
+def header(title,subtitle):
+    st.markdown(f'<div class="tp-header"><h2>{safe(title)}</h2><p>{safe(subtitle)}</p></div>',unsafe_allow_html=True)
+
+def navigate(page,pid=None):
+    st.session_state.page=page
+    if pid is not None:st.session_state.patient_id=pid
     st.rerun()
 
-def header(title,subtitle):
-    st.markdown(f'<div class="hero"><h1>{title}</h1><p>{subtitle}</p></div>',unsafe_allow_html=True)
+def fix_date(value):
+    if value and not re.fullmatch(r'\d{4}-\d{2}-\d{2}',str(value)):
+        raise ValueError('Dates must use YYYY-MM-DD format.')
+    if value:datetime.strptime(str(value),'%Y-%m-%d')
 
-def field_type(label):
-    l=label.lower()
-    if 'date' in l or 'dob' in l:return 'date'
-    if ('yes=1' in l or 'no=0' in l or 'no =0' in l or 'available=1' in l or 'n/a=9' in l or 'n/a=0' in l):return 'coded'
-    if l.startswith('sex ') or l.startswith('diagnosis ') or 'donor matching' in l:return 'choice'
-    if any(x in l for x in ['vaf (%)','blast percentage','height (cm)','weight (kg)','bsa (','ecog','karnofsky']):return 'number'
-    if any(x in l for x in ['information','comorbidities','karyotype at','specific drugs','conditioning','annotation','mutation/alteration','immunophenotype','cause of death']):return 'long'
-    return 'text'
+def input_field(field, old, prefix):
+    raw=field['label']; label=' '.join(raw.split()); key=prefix+'_'+field['key']
+    value=str(old or '')
+    lower=label.lower()
+    if 'sex ' in lower and 'f=1' in lower:
+        opts={'':'Not recorded','1':'Female','2':'Male'}
+    elif lower.startswith('diagnosis ') and 'mds=1' in lower:
+        opts={'':'Not recorded','1':'MDS','2':'AML'}
+    elif '(yes=1, no=0)' in lower or '(no=0, yes=1' in lower or '(available=1, n/a=0)' in lower:
+        opts={'':'Not recorded','0':'0 — No / negative / unavailable','1':'1 — Yes / positive / available'}
+        if 'n/a=9' in lower:opts['9']='9 — Not available'
+    elif 'donor matching' in lower:
+        opts={'':'Not recorded','0':'Haploidentical','1':'10/10','2':'9/10','3':'8/10'}
+    else:opts=None
+    if opts is not None:
+        if value not in opts:opts[value]=value
+        return st.selectbox(label,list(opts),index=list(opts).index(value),format_func=lambda v:opts[v],key=key)
+    if any(s in lower for s in ['additional information','comorbidities','immunophenotype','specific mutation','annotation','conditioning','karyotype at','cause of death','specific drugs']):
+        return st.text_area(label,value=value,height=95,key=key)
+    placeholder='YYYY-MM-DD' if ('date ' in lower or lower.startswith('date')) else None
+    return st.text_input(label,value=value,placeholder=placeholder,key=key)
 
-def widget(field,value,namespace):
-    name=field['label'];key=f'{namespace}_{field["key"]}'
-    kind=field_type(name)
-    label=name.replace('                    ',' ').replace('       ',' ')
-    if kind=='coded':
-        val=str(value or '')
-        opts=['','0','1','9'] if '9' in label else ['','0','1']
-        if val not in opts: opts.append(val)
-        return st.selectbox(label,opts,index=opts.index(val),format_func=lambda v:{'':'— Not entered —','0':'0 — No / negative / unavailable (see label)','1':'1 — Yes / positive / available (see label)','9':'9 — N/A'}.get(v,v),key=key)
-    if kind=='choice':
-        if name.lower().startswith('sex'): opts=['','1','2'];names={'':'— Not entered —','1':'1 — Female','2':'2 — Male'}
-        elif name.lower().startswith('diagnosis'):opts=['','1','2'];names={'':'— Not entered —','1':'1 — MDS','2':'2 — AML'}
-        else: opts=['','0','1','2','3'];names={'':'— Not entered —','0':'0 — Haplo','1':'1 — 10/10','2':'2 — 9/10','3':'3 — 8/10'}
-        v=str(value or '')
-        if v not in opts:opts.append(v)
-        return st.selectbox(label,opts,index=opts.index(v),format_func=lambda x:names.get(x,x),key=key)
-    if kind=='date':
-        return st.text_input(label,value=str(value or ''),placeholder='YYYY-MM-DD',key=key,help='Use ISO date format YYYY-MM-DD; blank is allowed.')
-    if kind=='long':return st.text_area(label,value=str(value or ''),height=82,key=key)
-    return st.text_input(label,value=str(value or ''),key=key)
-
-def render_form(pid,section,episode):
-    data=db.get_entry(pid,section,episode)
-    if section=='Treatment episode':
-        fields=[{'key':'title','label':'Treatment / regimen'}, {'key':'date','label':'Date of initiation'},
-                {'key':'response','label':'Response'}, {'key':'response_date','label':'Date of response'},
-                {'key':'relapse_date','label':'Date of relapse'}, {'key':'notes','label':'Additional information'}]
-        st.info('Add as many treatment episodes as needed. The original Excel treatment fields are also available separately in Treatment & outcomes.')
-    else:fields=SCHEMA[section]
-    st.caption(f'{len(fields)} fields · Blank fields are allowed · Editing patient {pid} · Entry {episode}')
-    with st.form(f'form_{pid}_{section}_{episode}'):
+def render_section(pid,section):
+    st.caption('Blank fields are permitted. Original workbook field names are retained for traceability.')
+    if section in REPEAT:
+        existing=db.entries(pid,section)
+        nums=[e['episode'] for e in existing]
+        selected=st.selectbox('Assessment / episode',nums+['+ New entry'],format_func=lambda x:f'Entry {x}' if isinstance(x,int) else x,key='episode_'+pid+section)
+        episode=db.next_episode(pid,section) if selected=='+ New entry' else selected
+    else: episode=1
+    fields=EPISODE_FIELDS if section=='Treatment episode' else SECTIONS[section]
+    old=db.get_entry(pid,section,episode)
+    with st.form('form_'+pid+section+str(episode)):
         values={}
         for i in range(0,len(fields),2):
-            cols=st.columns(2)
+            cols=st.columns(2,gap='large')
             for j,col in enumerate(cols):
                 if i+j<len(fields):
-                    f=fields[i+j]
-                    with col:values[f['key']]=widget(f,data.get(f['key'],''),f'{pid}_{section}_{episode}')
-        submitted=st.form_submit_button('💾 Save this section',type='primary',use_container_width=True)
+                    with col:
+                        f=fields[i+j]
+                        values[f['key']]=input_field(f,old.get(f['key'],''),pid+section+str(episode))
+        submitted=st.form_submit_button('💾 Save section to database',type='primary',use_container_width=True)
     if submitted:
-        for f in fields:
-            if field_type(f['label'])=='date' and values.get(f['key']):
-                try:datetime.strptime(values[f['key']],'%Y-%m-%d')
-                except ValueError:
-                    st.error(f'Invalid date in "{f["label"]}". Use YYYY-MM-DD.')
-                    return
-        for f in fields:
-            if 'vaf (%)' in f['label'].lower() and values.get(f['key']):
-                try:
-                    if not 0<=float(values[f['key']])<=100:raise ValueError()
-                except ValueError:
-                    st.error('VAF must be a percentage between 0 and 100.');return
-        changed=db.save_entry(pid,section,episode,values)
-        if section=='Patient details':db.update_patient(pid,center=values.get('c2',''))
-        if section=='Diagnosis & TP53':
-            d={'1':'MDS','2':'AML'};db.update_patient(pid,diagnosis=d.get(values.get('c2',''),''))
-        st.success('Saved to the local database.' if changed else 'No changes to save.')
+        try:
+            for f in fields:
+                k=f['key'];label=f['label'].lower()
+                if 'date' in label:fix_date(values.get(k))
+                if 'vaf (%)' in label.lower() and values.get(k):
+                    v=float(values[k])
+                    if not 0<=v<=100:raise ValueError('VAF must be between 0 and 100.')
+            changed=db.save_entry(pid,section,episode,values)
+            if section=='Patient details':db.update_patient(pid,center=values.get('c2',''))
+            if section=='Diagnosis & TP53':db.update_patient(pid,diagnosis={'1':'MDS','2':'AML'}.get(values.get('c2',''),''))
+            if changed:st.success('Saved successfully. This entry is now in '+db.BACKEND+'.')
+            else:st.info('No changes to save.')
+        except Exception as exc:st.error(f'Could not save: {exc}')
 
-def patient_timeline(pid):
-    all_entries=db.entries(pid)
-    timeline=[]
-    for e in all_entries:
-        s=e['section'];d=e['data'];ep=e['episode']
-        if s=='Patient details':date=d.get('c8','');title='Patient diagnosis recorded'
-        elif s=='Diagnosis & TP53':date=d.get('c3','');title='Molecular diagnosis'
-        elif s=='Treatment episode':date=d.get('date','');title=d.get('title','Treatment episode')
-        elif s=='Molecular follow-up':date=d.get('c4','');title=d.get('c2','Molecular assessment')
-        elif s=='Allogeneic transplant':date=d.get('c4','');title='Allogeneic transplant'
-        else:date=d.get('c7','') or d.get('c2','');title='Treatment / outcomes entry'
-        timeline.append((date if re.fullmatch(r'\d{4}-\d{2}-\d{2}',date or '') else '9999-99-99',date,title,s,ep))
-    for _,date,title,section,ep in sorted(timeline):
-        with st.container(border=True):
-            st.markdown(f'**{title}** &nbsp; <span class="pill">{section}</span>',unsafe_allow_html=True)
-            st.caption(f'{date or "Date not recorded"} · Entry {ep}')
-    if not timeline:st.info('No history yet. Fill in sections to create the clinical timeline.')
-
-def patient_workspace(pid):
-    p=db.get_patient(pid)
-    if not p:st.error('Patient not found.');return
-    header(f'Patient {pid}','Clinical profile · Sections · Longitudinal history')
-    a,b,c=st.columns(3)
-    a.metric('Diagnosis',p['diagnosis'] or 'Not set')
-    b.metric('Center',p['center'] or 'Not set')
-    c.metric('Saved entries',len(db.entries(pid)))
-    sec=st.selectbox('Clinical section',['Overview & timeline']+SECTIONS+['Modification history'],key=f'section_{pid}')
-    if sec=='Overview & timeline':
-        st.subheader('Patient timeline')
-        patient_timeline(pid)
-        st.subheader('Molecular VAF trend')
-        graph=[]
-        for e in db.entries(pid,'Molecular follow-up'):
-            d=e['data'];date=d.get('c4','');v=d.get('c10','')
+def timeline(pid):
+    timeline_rows=[];trends=[]
+    for row in db.entries(pid):
+        section=row['section'];d=row['data'];num=row['episode']
+        if section=='Patient details':date=d.get('c8','');title='Initial patient record'
+        elif section=='Diagnosis & TP53':date=d.get('c3','');title='Molecular diagnosis'
+        elif section=='Treatment episode':date=d.get('date','');title=d.get('title') or 'Treatment episode'
+        elif section=='Molecular follow-up':
+            date=d.get('c4','');title=d.get('c2') or 'Molecular reassessment'
             try:
-                if date:graph.append({'Date':pd.to_datetime(date),'VAF (%)':float(v)})
+                v=float(d.get('c10',''))
+                if date and 0<=v<=100:trends.append({'Date':pd.to_datetime(date),'VAF (%)':v})
             except (ValueError,TypeError):pass
-        if graph:
-            chart=pd.DataFrame(graph).sort_values('Date').set_index('Date')
-            st.line_chart(chart)
-        else:st.caption('Enter dated molecular follow-up entries with VAF to display the trend.')
-    elif sec=='Modification history':
-        st.subheader('Record change history')
-        for a in db.audit(pid):
-            with st.expander(f'{a["recorded_at"]} · {a["action"]} · {a["section"]}'):
-                st.caption('Prototype audit log; not a validated clinical audit trail or per-user attribution.')
-                st.json({'previous':json.loads(a['old_json']) if a['old_json'] else None,'new':json.loads(a['new_json']) if a['new_json'] else None})
-    else:
-        choices=db.entries(pid,sec)
-        if sec in REPEATABLE:
-            options=[e['episode'] for e in choices]
-            selected=st.selectbox('Select saved episode (or create a new one)',options+['+ New entry'],format_func=lambda v:f'Entry {v}' if isinstance(v,int) else v,key=f'ep_{pid}_{sec}')
-            ep=db.next_episode(pid,sec) if selected=='+ New entry' else selected
-        else:ep=1
-        render_form(pid,sec,ep)
+        elif section=='Allogeneic transplant':date=d.get('c4','');title='Allogeneic transplant'
+        else:date='';title=section
+        timeline_rows.append((date if re.fullmatch(r'\d{4}-\d{2}-\d{2}',date or '') else '9999-12-31',date,title,section,num))
+    st.subheader('Clinical timeline')
+    if not timeline_rows:st.info('Save a clinical section to create the first timeline event.')
+    for _,date,title,section,num in sorted(timeline_rows):
+        st.markdown(f'<div class="tp-entry"><strong>{safe(title)}</strong><div class="tp-small">{safe(date or "Date not recorded")} · {safe(section)} · Entry {num}</div></div>',unsafe_allow_html=True)
+    st.subheader('TP53 VAF over time')
+    if trends:
+        st.line_chart(pd.DataFrame(trends).sort_values('Date').set_index('Date'))
+    else:st.caption('Add dated molecular assessments with VAF measurements to display the chart.')
 
-if nav=='Dashboard':
-    header('Research dashboard','A simple, searchable TP53 registry for one research team')
+def patient_page(pid):
+    p=db.get_patient(pid)
+    if not p:st.warning('Patient record not found.');return
+    header('Patient '+pid,'Clinical record · '+(p['diagnosis'] or 'Diagnosis not recorded')+' · '+(p['center'] or 'Center not recorded'))
+    c1,c2,c3=st.columns(3)
+    c1.metric('Diagnosis',p['diagnosis'] or 'Not recorded')
+    c2.metric('Center',p['center'] or 'Not recorded')
+    c3.metric('Saved sections',len(db.entries(pid)))
+    selection=st.session_state.get('patient_section','Patient Overview')
+    if selection=='Patient Overview':timeline(pid)
+    elif selection=='Modification History':
+        st.subheader('Record modification history')
+        for evt in db.audit(pid):
+            with st.expander(f'{evt["recorded_at"]} · {evt["section"]} · {evt["action"]}'):
+                st.caption('Prototype change log; no individual-user attribution yet.')
+                st.json({'Before':json.loads(evt['old_json']) if evt['old_json'] else None,
+                         'After':json.loads(evt['new_json']) if evt['new_json'] else None})
+    else:
+        section=PAGES.get(selection)
+        if section:
+            st.subheader(selection)
+            if section in REPEAT:st.info('You can save any number of separate assessments or treatment episodes.')
+            render_section(pid,section)
+
+# Only insert fictional seed patients on a fresh, empty database.
+if not st.session_state.get('bootstrapped'):
+    try:db.seed_demo()
+    except Exception as exc:st.warning(f'Demo data not initialized: {exc}')
+    st.session_state.bootstrapped=True
+if 'page' not in st.session_state:st.session_state.page='Dashboard'
+if 'patient_id' not in st.session_state:st.session_state.patient_id=None
+if 'patient_section' not in st.session_state:st.session_state.patient_section='Patient Overview'
+
+st.sidebar.markdown('<div class="tp-logo">✚ TP53 Clinical Registry</div>',unsafe_allow_html=True)
+st.sidebar.caption('Research data management · Prototype')
+st.sidebar.info('🧪 TEST MODE — Synthetic data only. No clinical use.')
+st.sidebar.markdown('##### WORKSPACE')
+for label,icon in [('Dashboard','▦'),('Patient Registry','♧'),('New Patient','⊕'),('Export Data','⇩')]:
+    if st.sidebar.button(icon+'  '+label,key='work_'+label,use_container_width=True):navigate(label)
+patient_id=st.session_state.patient_id
+if patient_id and db.get_patient(patient_id):
+    st.sidebar.divider()
+    st.sidebar.markdown('##### PATIENT RECORD')
+    st.sidebar.caption('Selected: '+patient_id)
+    labels=['Patient Overview']+list(PAGES)+['Modification History']
+    st.sidebar.radio('Clinical sections',labels,key='patient_section',label_visibility='collapsed')
+    if st.sidebar.button('Open selected patient',use_container_width=True):navigate('Patient Workspace')
+st.sidebar.divider()
+st.sidebar.caption('Storage: '+db.BACKEND)
+st.sidebar.caption('Not authenticated · Do not use real patient data')
+
+page=st.session_state.page
+if page=='Dashboard':
+    header('Research dashboard','Explore your TP53 study cohort and recently saved records')
     n,e=db.stats();a,b,c=st.columns(3)
-    a.metric('Registered patients',n);b.metric('Saved clinical entries',e);c.metric('Study mode','Demo')
-    st.info('This prototype contains fictional patient records. It has no authentication or production security controls. Do not enter actual patient or identifiable health information.')
+    a.metric('Registered patients',n);b.metric('Clinical entries',e);c.metric('Database','Connected')
+    st.info('This is a synthetic-data prototype without user authentication. Do not enter real clinical information.')
     st.subheader('Recent patients')
-    for p in db.list_patients()[:5]:
-        left,right=st.columns([5,1]);left.write(f'**{p["patient_id"]}** · {p["diagnosis"] or "Not classified"} · {p["center"]}')
-        if right.button('Open',key=f'dash_{p["patient_id"]}'):go_patient(p['patient_id'])
-    if st.button('Open patient registry →',type='primary'):
-        st.session_state.pending_nav='Patient registry';st.rerun()
-elif nav=='New patient':
-    header('Register a patient','Create a pseudonymized research record')
-    with st.form('create_patient'):
-        pid=st.text_input('Unique research ID *',placeholder='DEMO-004',help='No names, dates of birth, hospital record numbers or other directly identifying IDs.')
-        center=st.text_input('Center / hospital (optional)')
-        diag=st.selectbox('Diagnosis (optional)',['','MDS','AML'])
-        created=st.form_submit_button('Create patient',type='primary')
-    if created:
-        try:db.create_patient(pid,center,diag)
-        except Exception as ex:st.error(f'Could not create patient: {ex}')
-        else:st.success(f'Created {pid}.');go_patient(pid)
-elif nav=='Patient registry':
-    header('Patient registry','Search, open, and update the complete patient record')
-    search=st.text_input('Search research ID, diagnosis or center',placeholder='Try DEMO-001 or MDS')
-    rows=db.list_patients(search)
-    st.caption(f'{len(rows)} record(s) found')
+    for p in db.list_patients()[:10]:
+        with st.container(border=True):
+            c1,c2=st.columns([5,1])
+            c1.markdown('**'+safe(p['patient_id'])+'**  · '+safe(p['diagnosis'] or 'Not classified')+'  · '+safe(p['center']))
+            if c2.button('Open →',key='recent_'+p['patient_id'],use_container_width=True):navigate('Patient Workspace',p['patient_id'])
+    if st.button('Search all patients →',type='primary'):navigate('Patient Registry')
+elif page=='Patient Registry':
+    header('Patient registry','Find a patient and open their complete clinical history')
+    q=st.text_input('Search patients',placeholder='Search by research ID, hospital or diagnosis')
+    rows=db.list_patients(q)
+    st.caption(f'{len(rows)} patient(s) found')
     for p in rows:
-        left,right=st.columns([5,1])
-        with left:
-            st.markdown(f'**{p["patient_id"]}** · {p["diagnosis"] or "Not classified"} · {p["center"] or "No center"}')
-            st.caption('Last edited '+p['updated_at'][:16].replace('T',' '))
-        with right:
-            if st.button('Open →',key='open_'+p['patient_id'],use_container_width=True):
-                st.session_state.patient_id=p['patient_id'];st.rerun()
-    if not rows:st.info('No matching records.')
-    pid=st.session_state.patient_id
-    if pid and db.get_patient(pid):
-        st.divider()
-        patient_workspace(pid)
-else:
-    header('Research export','Export fictional research records for analysis')
-    data=[]
+        with st.container(border=True):
+            c1,c2=st.columns([5,1])
+            c1.markdown('**'+safe(p['patient_id'])+'**')
+            c1.caption((p['diagnosis'] or 'Unclassified')+' · '+(p['center'] or 'No center')+' · Updated '+p['updated_at'][:10])
+            if c2.button('View history →',key='patient_'+p['patient_id'],use_container_width=True):navigate('Patient Workspace',p['patient_id'])
+    if not rows:st.info('No matching patient records.')
+elif page=='New Patient':
+    header('Register a new patient','Only fictional, pseudonymized research codes during testing')
+    with st.form('create'):
+        pid=st.text_input('Unique research ID *',placeholder='DEMO-004')
+        center=st.text_input('Hospital / Center',placeholder='Demo center')
+        diagnosis=st.selectbox('Diagnosis',['','MDS','AML'])
+        submitted=st.form_submit_button('Create patient record',type='primary')
+    if submitted:
+        try:
+            db.create_patient(pid,center,diagnosis)
+            navigate('Patient Workspace',pid.strip())
+        except Exception as exc:st.error(f'Could not create patient: {exc}')
+elif page=='Patient Workspace':
+    if not patient_id:st.info('Select a patient from Patient Registry.')
+    else:patient_page(patient_id)
+elif page=='Export Data':
+    header('Export research data','Download the saved synthetic cohort for statistical analysis')
+    export=[]
     for p in db.list_patients():
-        for e in db.entries(p['patient_id']):
-            data.append({'patient_id':p['patient_id'],'center':p['center'],'diagnosis':p['diagnosis'],
-                         'section':e['section'],'episode':e['episode'],**e['data']})
-    if data:
-        st.download_button('⬇ Download research data (CSV)',pd.DataFrame(data).to_csv(index=False).encode('utf-8-sig'),
-                           file_name='tp53_demo_export.csv',mime='text/csv',type='primary')
-        st.caption('Columns c2, c3, etc. match positions in the original Excel sheets; field descriptions are in field_schema.json.')
-        with st.expander('Preview export'):st.dataframe(pd.DataFrame(data),use_container_width=True)
-    else:st.info('No saved data to export.')
+        es=db.entries(p['patient_id'])
+        if not es:export.append({'patient_id':p['patient_id'],'center':p['center'],'diagnosis':p['diagnosis']})
+        for e in es:export.append({'patient_id':p['patient_id'],'center':p['center'],'diagnosis':p['diagnosis'],
+                                 'section':e['section'],'episode':e['episode'],**e['data']})
+    if export:
+        frame=pd.DataFrame(export)
+        st.download_button('Download CSV',frame.to_csv(index=False).encode('utf-8-sig'),file_name='tp53_demo_export.csv',mime='text/csv',type='primary')
+        st.dataframe(frame,hide_index=True,use_container_width=True)
+        st.caption('Field codes c2/c3/etc. correspond to original workbook columns; definitions are in field_schema.json.')
+    else:st.info('No records to export.')
 st.divider()
-st.caption('TP53 Registry · Research prototype · Not a medical device · Not for clinical decision-making or real patient records')
+st.caption('TP53 Clinical Registry · Demonstration only · No clinical decision making · No real patient data')
